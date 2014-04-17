@@ -34,3 +34,12 @@ TODO: Write usage instructions here
     $ bundle exec rubocop .          # Check code style
     $ bundle exec yard doc           # Generate and check documentation
     $ gem build vimeo_videos.gemspec # Make sure it builds and doesn't print warning
+
+## Resources
+
+* [https://developer.vimeo.com/apis/advanced/upload](https://developer.vimeo.com/apis/advanced/upload)
+* [https://github.com/vimeo/vimeo-php-lib/blob/master/vimeo.php](https://github.com/vimeo/vimeo-php-lib/blob/master/vimeo.php)
+* [https://github.com/vimeo/vimeo-php-lib/blob/master/upload.php](https://github.com/vimeo/vimeo-php-lib/blob/master/upload.php)
+* [https://github.com/matthooks/vimeo](https://github.com/matthooks/vimeo)
+* [https://github.com/novelys/easy-vimeo/blob/master/lib/easy-vimeo.rb](https://github.com/novelys/easy-vimeo/blob/master/lib/easy-vimeo.rb)
+* [https://github.com/laserlemon/simple_oauth](https://github.com/laserlemon/simple_oauth)
