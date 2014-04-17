@@ -26,9 +26,10 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'webmock',   '~> 1.17'
   spec.add_development_dependency 'simplecov', '~> 0.8'
 
-  # Code style, debugging
+  # Code style, debugging, docs
   spec.add_development_dependency 'rubocop', '~> 0.20'
-  spec.add_development_dependency 'pry',       '~> 0.9'
+  spec.add_development_dependency 'pry',     '~> 0.9'
+  spec.add_development_dependency 'yard',    '~> 0.8'
 
   # Networking
   spec.add_runtime_dependency 'typhoeus', '~> 0.6'

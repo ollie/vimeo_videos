@@ -1,6 +1,6 @@
 # VimeoVideos
 
-TODO: Write a gem description
+Simple library for uploading videos through Vimeo V2 API, uses OAuth 1.
 
 ## Installation
 
@@ -27,3 +27,10 @@ TODO: Write usage instructions here
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create a new Pull Request
+
+## Development
+
+    $ bundle exec rspec              # Run tests
+    $ bundle exec rubocop .          # Check code style
+    $ bundle exec yard doc           # Generate and check documentation
+    $ gem build vimeo_videos.gemspec # Make sure it builds and doesn't print warning
