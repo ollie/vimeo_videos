@@ -29,7 +29,7 @@ describe VimeoVideos::Client do
   end
 
   context 'Arguments validation' do
-    it 'raises an error with empty options' do
+    it 'raises an error with empty credentials' do
       expect do
         VimeoVideos::Client.new {}
       end.to raise_error(ArgumentError)
@@ -88,6 +88,26 @@ describe VimeoVideos::Client do
           # access_token_secret: 'access_token_secret'
         )
       end.to raise_error(ArgumentError)
+    end
+  end
+
+  context 'Upload' do
+    before do
+      @client = VimeoVideos::Client.new(
+        client_id:           'client_id',
+        client_secret:       'client_secret',
+        access_token:        'access_token',
+        access_token_secret: 'access_token_secret'
+      )
+    end
+
+    it 'fails with invalid file' do
+      File.stub(:exist?) { false }
+      expect { @client.upload('not_here.mp4') }.to raise_error(ArgumentError)
+    end
+
+    it 'uploads' do
+      expect { @client.upload(EXAMPLE_VIDEO) }.to_not raise_error
     end
   end
 end

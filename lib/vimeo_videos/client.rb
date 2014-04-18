@@ -1,70 +1,63 @@
+require 'vimeo_videos/client/defaults'
+require 'vimeo_videos/client/credentials'
+
 module VimeoVideos
   # Does the API calls.
   class Client
-    OJ_OPTIONS = {
-      mode:             :compat,     # Converts values with to_hash or to_json
-      symbol_keys:      true,        # Symbol keys to string keys
-      time_format:      :xmlschema,  # ISO8061 format
-      second_precision: 0,           # No include milliseconds
-    }
+    include VimeoVideos::Client::Defaults
+    include VimeoVideos::Client::Credentials
 
-    API_URL           = 'https://vimeo.com/api/rest/v2'
-    REQUEST_TOKEN_URL = 'https://vimeo.com/oauth/request_token'
-    AUTHORIZE_URL     = 'https://vimeo.com/oauth/authorize'
-    ACCESS_TOKEN_URL  = 'https://vimeo.com/oauth/access_token'
+    # The V2 URL.
+    API_URL = 'https://vimeo.com/api/rest/v2'
 
-    attr_reader :client_id
-    attr_reader :client_secret
-    attr_reader :access_token
-    attr_reader :access_token_secret
+    # Let the API know we want JSON.
+    VERSION_STRING = 'application/vnd.vimeo.*+json; version=2.0'
 
-    # Create a new client. Requires a client id + secret
-    # as well as access token + secret.
+    # And let it know that it's us.
+    USER_AGENT = 'VimeoVideos (https://github.com/ollie/vimeo_videos)'
+
+    # A client will upload videos without doing the user-auth process,
+    # that's why it needs the access token and secret.
     #
-    # @param options [Hash]
+    # @param credentials [Hash]
     #   :client_id
     #   :client_secret
     #   :access_token
     #   :access_token_secret
-    def initialize(options = {})
-      self.client_id           = options[:client_id]
-      self.client_secret       = options[:client_secret]
-      self.access_token        = options[:access_token]
-      self.access_token_secret = options[:access_token_secret]
+    def initialize(credentials = {})
+      self.client_id           = credentials[:client_id]
+      self.client_secret       = credentials[:client_secret]
+      self.access_token        = credentials[:access_token]
+      self.access_token_secret = credentials[:access_token_secret]
     end
 
-    protected
-
-    def client_id=(value)
-      if value.nil? || value.empty?
-        fail(ArgumentError, "Invalid client_id: #{ value }")
-      end
-
-      @client_id = value
+    # Upload a file to Vimeo.
+    #
+    # @param file_path [String] path to the video file
+    # @return video_id
+    def upload(file_path)
+      Upload.new(file_path, self).upload!
     end
 
-    def client_secret=(value)
-      if value.nil? || value.empty?
-        fail(ArgumentError, "Invalid client_secret: #{ value }")
-      end
+    # Make an API call.
+    #
+    # @param method         [String] eg 'vimeo.videos.upload.getQuota'
+    # @param params         [Hash]   HTTP parameters
+    # @param request_method [String] :get, :post, :put, :delete
+    def request(method, params = {}, request_method = :get)
+      # options = {
+      #   consumer_key:     client_id,
+      #   consumer_secret:  client_secret,
+      # }
 
-      @client_secret = value
-    end
+      # url = "#{ API_URL }?method=#{ method }"
 
-    def access_token=(value)
-      if value.nil? || value.empty?
-        fail(ArgumentError, "Invalid access_token: #{ value }")
-      end
-
-      @access_token = value
-    end
-
-    def access_token_secret=(value)
-      if value.nil? || value.empty?
-        fail(ArgumentError, "Invalid access_token_secret: #{ value }")
-      end
-
-      @access_token_secret = value
+      # # header = SimpleOAuth::Header.new(
+      # #   request_method,
+      # #   url,
+      # #   params,
+      # #   options
+      # # )
     end
   end
 end

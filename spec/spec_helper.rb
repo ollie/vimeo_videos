@@ -10,3 +10,5 @@ end
 
 require 'request_stubs'
 require 'vimeo_videos'
+
+EXAMPLE_VIDEO = File.expand_path( '../../example/example-video.mp4', __FILE__ )

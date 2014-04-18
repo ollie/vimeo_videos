@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email         = ['oldrich.vetesnik@gmail.com']
   spec.summary       = %q{Upload videos to Vimeo through V2 API.}
   spec.description   = %q{Simple library for uploading videos through Vimeo V2 API, uses OAuth 1.}
-  spec.homepage      = ''
+  spec.homepage      = 'https://github.com/ollie/vimeo_videos'
   spec.license       = 'MIT'
 
   spec.files         = `git ls-files -z`.split("\x0")
@@ -30,8 +30,10 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rubocop', '~> 0.20'
   spec.add_development_dependency 'pry',     '~> 0.9'
   spec.add_development_dependency 'yard',    '~> 0.8'
+  spec.add_development_dependency 'rake',    '~> 10.3'
 
   # Networking
-  spec.add_runtime_dependency 'typhoeus', '~> 0.6'
-  spec.add_runtime_dependency 'oj',       '~> 2.7'
+  spec.add_runtime_dependency 'typhoeus',     '~> 0.6'
+  spec.add_runtime_dependency 'oj',           '~> 2.7'
+  spec.add_runtime_dependency 'simple_oauth', '~> 0.2'
 end

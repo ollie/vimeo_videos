@@ -40,6 +40,7 @@ TODO: Write usage instructions here
 * [https://developer.vimeo.com/apis/advanced/upload](https://developer.vimeo.com/apis/advanced/upload)
 * [https://github.com/vimeo/vimeo-php-lib/blob/master/vimeo.php](https://github.com/vimeo/vimeo-php-lib/blob/master/vimeo.php)
 * [https://github.com/vimeo/vimeo-php-lib/blob/master/upload.php](https://github.com/vimeo/vimeo-php-lib/blob/master/upload.php)
+* [https://github.com/vimeo/vimeo.php](https://github.com/vimeo/vimeo.php)
 * [https://github.com/matthooks/vimeo](https://github.com/matthooks/vimeo)
 * [https://github.com/novelys/easy-vimeo/blob/master/lib/easy-vimeo.rb](https://github.com/novelys/easy-vimeo/blob/master/lib/easy-vimeo.rb)
 * [https://github.com/laserlemon/simple_oauth](https://github.com/laserlemon/simple_oauth)
