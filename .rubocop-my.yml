@@ -1,3 +1,7 @@
+AllCops:
+  Exclude:
+    - spec/request_stubs.rb
+
 SpaceInsideParens:
   Enabled: false
 

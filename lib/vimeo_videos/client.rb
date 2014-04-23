@@ -10,9 +10,6 @@ module VimeoVideos
     # The V2 URL.
     API_URL = 'https://vimeo.com/api/rest/v2'
 
-    # Let the API know we want JSON.
-    VERSION_STRING = 'application/vnd.vimeo.*+json; version=2.0'
-
     # And let it know that it's us.
     USER_AGENT = 'VimeoVideos (https://github.com/ollie/vimeo_videos)'
 
@@ -43,23 +40,59 @@ module VimeoVideos
     #
     # @param method         [String] eg 'vimeo.videos.upload.getQuota'
     # @param params         [Hash]   HTTP parameters
-    # @param request_method [String] :get, :post, :put, :delete
-    def request(method, params = {}, request_method = :get, api_url = API_URL)
-      # oauth = {
-      #   consumer_key: client_id,
-      #   token:        access_token,
-      # }
+    # @param request_method [Symbol] :get, :post, :put, :delete
+    # @param api_url        [String] root API URL
+    def request(api_method, params = {}, request_method = :get, api_url = API_URL)
+      request  = new_request(api_method, params, request_method, api_url)
+      response = get_response(request)
+      response
+    end
 
-      # params[:method] = method
+    def new_request(api_method, params, request_method, api_url)
+      params[:method] = api_method
+      params[:format] = 'json'
 
-      # header = SimpleOAuth::Header.new(
-      #   request_method,
-      #   api_url,
-      #   params,
-      #   oauth
-      # )
+      header = new_header(params, request_method, api_url)
 
-      # binding.pry
+      Typhoeus::Request.new(
+        header.url,
+        method: header.method.downcase.to_sym,
+        params: header.params,
+        headers: {
+          'User-Agent'    => USER_AGENT,
+          'Authorization' => header.to_s
+        }
+      )
+    end
+
+    def new_header(params, request_method, api_url)
+      header = SimpleOAuth::Header.new(
+        request_method,
+        api_url,
+        params,
+        oauth_options
+      )
+      header
+    end
+
+    def oauth_options
+      options = {
+        consumer_key:    client_id,
+        consumer_secret: client_secret,
+        token:           access_token,
+        token_secret:    access_token_secret
+      }
+      options
+    end
+
+    def get_response(request)
+      response    = request.run
+      raw_body    = response.body
+      parsed_body = Oj.load(raw_body, OJ_OPTIONS)
+
+      fail ApiError, "#{ parsed_body.inspect }" if parsed_body[:stat] != 'ok'
+
+      parsed_body
     end
   end
 end

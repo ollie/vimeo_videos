@@ -15,9 +15,8 @@ client = VimeoVideos::Client.new(
 )
 
 begin
-  video_id  = client.upload('example-video.mp4')
+  video_id = client.upload('example-video.mp4')
   puts video_id
-  # binding.pry
-rescue VimeoVideos::APIException => e
+rescue VimeoVideos::UploadError => e
   puts "Oh noes, something broke: #{ e }"
 end

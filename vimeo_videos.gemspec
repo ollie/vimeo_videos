@@ -33,7 +33,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rake',    '~> 10.3'
 
   # Networking
-  spec.add_runtime_dependency 'typhoeus',     '~> 0.6'
-  spec.add_runtime_dependency 'oj',           '~> 2.7'
-  spec.add_runtime_dependency 'simple_oauth', '~> 0.2'
+  spec.add_runtime_dependency 'typhoeus',     '~> 0.6' # Fast networking
+  spec.add_runtime_dependency 'oj',           '~> 2.8' # Fast JSON parsing/dumping
+  spec.add_runtime_dependency 'simple_oauth', '~> 0.2' # OAuth headers generator
 end
