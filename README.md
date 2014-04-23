@@ -49,7 +49,7 @@ TODO: Write usage instructions here
 
     $ bundle exec rspec              # Run tests
     $ bundle exec rubocop .          # Check code style
-    $ bundle exec yard doc           # Generate and check documentation
+    $ bundle exec yardoc             # Generate and check documentation
     $ gem build vimeo_videos.gemspec # Make sure it builds and doesn't print warning
 
     $ rake                           # Tests, rubocop and doc

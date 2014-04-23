@@ -1,7 +1,9 @@
+# To run this example, +cd+ into this directory.
+
 require 'bundler'
 Bundler.require
 
-require File.expand_path( '../../lib/vimeo_videos', __FILE__ )
+require '../lib/vimeo_videos'
 require 'yaml'
 
 config = YAML.load( File.read('config.yml') )
@@ -13,8 +15,7 @@ client = VimeoVideos::Client.new(
 )
 
 begin
-  file_path = File.expand_path( '../example-video.mp4', __FILE__ )
-  video_id  = client.upload(file_path)
+  video_id  = client.upload('example-video.mp4')
   puts video_id
   # binding.pry
 rescue VimeoVideos::APIException => e

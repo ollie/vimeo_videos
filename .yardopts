@@ -1,0 +1,8 @@
+--protected
+--private
+--embed-mixins
+lib/**/*.rb
+-
+README.md
+LICENSE.txt
+example/upload.rb
