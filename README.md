@@ -41,10 +41,10 @@ TODO: Write usage instructions here
 
 1. Fork it (https://github.com/ollie/vimeo_videos/fork)
 2. Create your feature branch (`git checkout -b my-new-feature`)
-3a. Try to cover your changes with tests.
-3b. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create a new Pull Request
+3. Try to cover your changes with tests.
+4. Commit your changes (`git commit -am 'Add some feature'`)
+5. Push to the branch (`git push origin my-new-feature`)
+6. Create a new Pull Request
 
 ## Development
 
