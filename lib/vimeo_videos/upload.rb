@@ -18,7 +18,7 @@ module VimeoVideos
         fail(ArgumentError, "Invalid file_path: #{ value }")
       end
 
-      fail(ArgumentError, 'File seems to be missing') unless File.file? value
+      fail(ArgumentError, 'File seems to be missing') unless File.file?(value)
 
       @file_path = value
     end

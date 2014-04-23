@@ -41,7 +41,8 @@ TODO: Write usage instructions here
 
 1. Fork it (https://github.com/ollie/vimeo_videos/fork)
 2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
+3a. Try to cover your changes with tests.
+3b. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create a new Pull Request
 
@@ -58,10 +59,10 @@ TODO: Write usage instructions here
 
 ## Resources
 
-* [https://developer.vimeo.com/apis/advanced/upload](https://developer.vimeo.com/apis/advanced/upload)
-* [https://github.com/vimeo/vimeo-php-lib/blob/master/vimeo.php](https://github.com/vimeo/vimeo-php-lib/blob/master/vimeo.php)
-* [https://github.com/vimeo/vimeo-php-lib/blob/master/upload.php](https://github.com/vimeo/vimeo-php-lib/blob/master/upload.php)
-* [https://github.com/vimeo/vimeo.php](https://github.com/vimeo/vimeo.php)
-* [https://github.com/matthooks/vimeo](https://github.com/matthooks/vimeo)
-* [https://github.com/novelys/easy-vimeo/blob/master/lib/easy-vimeo.rb](https://github.com/novelys/easy-vimeo/blob/master/lib/easy-vimeo.rb)
-* [https://github.com/laserlemon/simple_oauth](https://github.com/laserlemon/simple_oauth)
+* Vimeo V2 API [https://developer.vimeo.com/apis/advanced/upload](https://developer.vimeo.com/apis/advanced/upload)
+* Official Vimeo V2 PHP lib [https://github.com/vimeo/vimeo-php-lib](https://github.com/vimeo/vimeo-php-lib)
+* Official Vimeo V3 PHP lib [https://github.com/vimeo/vimeo.php](https://github.com/vimeo/vimeo.php)
+* OAuth headers lib [https://github.com/laserlemon/simple_oauth](https://github.com/laserlemon/simple_oauth)
+* Fast networking lib [https://github.com/typhoeus/typhoeus](https://github.com/typhoeus/typhoeus)
+* Way too big Vimeo V2 Ruby lib [https://github.com/matthooks/vimeo](https://github.com/matthooks/vimeo)
+* Wrapper around the way-big lib [https://github.com/novelys/easy-vimeo](https://github.com/novelys/easy-vimeo)

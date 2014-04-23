@@ -44,20 +44,22 @@ module VimeoVideos
     # @param method         [String] eg 'vimeo.videos.upload.getQuota'
     # @param params         [Hash]   HTTP parameters
     # @param request_method [String] :get, :post, :put, :delete
-    def request(method, params = {}, request_method = :get)
-      # options = {
-      #   consumer_key:     client_id,
-      #   consumer_secret:  client_secret,
+    def request(method, params = {}, request_method = :get, api_url = API_URL)
+      # oauth = {
+      #   consumer_key: client_id,
+      #   token:        access_token,
       # }
 
-      # url = "#{ API_URL }?method=#{ method }"
+      # params[:method] = method
 
-      # # header = SimpleOAuth::Header.new(
-      # #   request_method,
-      # #   url,
-      # #   params,
-      # #   options
-      # # )
+      # header = SimpleOAuth::Header.new(
+      #   request_method,
+      #   api_url,
+      #   params,
+      #   oauth
+      # )
+
+      # binding.pry
     end
   end
 end

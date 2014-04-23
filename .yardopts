@@ -5,4 +5,5 @@ lib/**/*.rb
 -
 README.md
 LICENSE.txt
+example/config.yml.example
 example/upload.rb
