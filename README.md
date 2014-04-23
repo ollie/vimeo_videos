@@ -2,6 +2,23 @@
 
 Simple library for uploading videos through Vimeo V2 API, uses OAuth 1.
 
+## Internals
+
+There are two classes: `VimeoVideos::Client` and `VimeoVideos::Upload`.
+The purpose of the `Client` class is:
+
+1. Provide a proxy interface (`upload` method),
+2. Do the network talking.
+
+Whereas the `Upload` class is supposed to:
+
+1. Use the client to get user/video info to decide what to do,
+2. Do everything related to files.
+
+The interface is built in such a way that the `Upload` instance gets the
+`Client` instance through a constructor argument (not calling
+it statically).
+
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -34,6 +51,7 @@ TODO: Write usage instructions here
     $ bundle exec rubocop .          # Check code style
     $ bundle exec yard doc           # Generate and check documentation
     $ gem build vimeo_videos.gemspec # Make sure it builds and doesn't print warning
+    $ rake                           # Or do all those above in one step
 
 ## Resources
 
