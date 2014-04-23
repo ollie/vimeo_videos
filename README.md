@@ -51,7 +51,10 @@ TODO: Write usage instructions here
     $ bundle exec rubocop .          # Check code style
     $ bundle exec yard doc           # Generate and check documentation
     $ gem build vimeo_videos.gemspec # Make sure it builds and doesn't print warning
-    $ rake                           # Or do all those above in one step
+
+    $ rake                           # Tests, rubocop and doc
+    $ rake combo                     # Ditto
+    $ rake mega_combo                # Ditto and gem build
 
 ## Resources
 
