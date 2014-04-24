@@ -2,9 +2,16 @@ module VimeoVideos
   class Client
     # Abstracted OAuth credentials.
     module Credentials
+      # @return [String] client id / consumer key
       attr_reader :client_id
+
+      # @return [String] client secret / consumer secret
       attr_reader :client_secret
+
+      # @return [String] token / access token
       attr_reader :access_token
+
+      # @return [String] token secret / access token secret
       attr_reader :access_token_secret
 
       # Set consumer key.

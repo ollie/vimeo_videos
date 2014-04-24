@@ -1,6 +1,7 @@
 # VimeoVideos
 
 Simple library for uploading videos through Vimeo V2 API, uses OAuth 1.
+Currently requires an access token and secret given to you from Vimeo.
 
 ## Internals
 

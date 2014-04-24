@@ -1,11 +1,19 @@
 module VimeoVideos
   # Does the uploading and upload-talking.
   class Upload
-    attr_reader :file_path, :client, :file_name, :file_size
+    # @return [String] path to the video file
+    attr_reader :file_path
 
-    # [Hash] :id
-    #        :endpoint_secure
-    #        :max_file_size
+    # @return [Client] Client instance
+    attr_reader :client
+
+    # @return [String] name of the video file
+    attr_reader :file_name
+
+    # @return [Fixnum] size of the video file
+    attr_reader :file_size
+
+    # @return [Hash] Keys: :id, :endpoint_secure, :max_file_size
     attr_accessor :ticket
 
     # @param file_path [String] video file path
