@@ -6,3 +6,6 @@ TrailingComma:
 
 LineLength:
   Max: 120
+
+ClassLength:
+  Max: 200

@@ -31,9 +31,10 @@ module VimeoVideos
     # Upload a file to Vimeo.
     #
     # @param file_path [String] path to the video file
+    # @param options   [Hash]   :chunk_temp_dir, :chunk_size
     # @return [String] video_id
-    def upload(file_path)
-      Upload.new(file_path, self).upload!
+    def upload(file_path, options = {})
+      Upload.new(file_path, self, options).upload!
     end
 
     # Make an API call.

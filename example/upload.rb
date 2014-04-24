@@ -15,7 +15,8 @@ client = VimeoVideos::Client.new(
 )
 
 begin
-  video_id = client.upload('example-video.mp4')
+  # video_id = client.upload('example-video.mp4') # Default chunk_temp_dir and chunk_size
+  video_id = client.upload('example-video.mp4', temp_dir: '../tmp', chunk_size: 100_000)
   puts video_id
 rescue VimeoVideos::BaseError => e
   puts "Oh noes, something broke: #{ e }"

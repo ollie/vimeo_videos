@@ -1,55 +1,86 @@
 module VimeoVideos
   # Does the uploading and upload-talking.
   class Upload
-    # @return [String] path to the video file
+    # @return [Pathname] path to the video file
     attr_reader :file_path
 
     # @return [Client] Client instance
     attr_reader :client
 
     # @return [String] name of the video file
-    attr_reader :file_name
+    attr_accessor :file_name
 
     # @return [Fixnum] size of the video file
-    attr_reader :file_size
+    attr_accessor :file_size
 
-    # @return [Hash] Keys: :id, :endpoint_secure, :max_file_size
+    # @return [Pathname] path to dir where chunks dirs will be stored, defaults to 'tmp'
+    attr_reader :temp_dir
+
+    # @return [Pathname] path to dir where video chunks will be stored, defaults to 'tmp'
+    attr_accessor :chunk_temp_dir
+
+    # @return [Fixnum] chunk a video by chunk_size bytes, defaults to 2 MB
+    attr_reader :chunk_size
+
+    # @return [Array] array of chunks (video split into pieces)
+    attr_accessor :chunks
+
+    # @return [Fixnum] to how many pieces split the video into
+    attr_accessor :number_of_chunks
+
+    # @return [Hash] :id, :endpoint_secure, :max_file_size
     attr_accessor :ticket
 
     # @param file_path [String] video file path
     # @param client    [Client] the client is used to call the API
-    def initialize(file_path, client)
-      self.file_path = file_path
-      self.client    = client
-      load_file_name
-      load_file_size
+    # @param options   [Hash]   :temp_dir, :chunk_size
+    def initialize(file_path, client, options = {})
+      self.file_path        = file_path
+      self.file_name        = File.basename(file_path)
+      self.file_size        = File.size(file_path)
+      self.client           = client
+      self.temp_dir         = options[:temp_dir] || 'tmp'
+      self.chunk_size       = options[:chunk_size]     || 2_097_152 # 2 MB
+      self.chunks           = []
+      self.number_of_chunks = (file_size.to_f / chunk_size).ceil
     end
 
-    # Set path to the video file.
+    # @param value [String] video file path
     def file_path=(value)
       if value.nil? || value.empty?
-        fail(ArgumentError, "Invalid file_path: #{ value }")
+        fail(ArgumentError, 'file_path cannot be empty')
       end
 
       fail(ArgumentError, 'File seems to be missing') unless File.file?(value)
 
-      @file_path = value
+      @file_path = Pathname.new(value)
     end
 
-    # Set client.
+    # @param value [Client] the client is used to call the API
     def client=(value)
-      fail(ArgumentError, "Invalid file_path: #{ value }") unless value
+      fail(ArgumentError, 'client cannot be empty') unless value
       @client = value
     end
 
-    # Reads the name of the video file and saves it.
-    def load_file_name
-      @file_name = File.basename(file_path)
+    # @param value [String] path to dir where chunks dirs will be stored
+    def temp_dir=(value)
+      if value.nil? || value.empty?
+        fail(ArgumentError, "Invalid temp_dir: #{ value }")
+      end
+
+      fail(ArgumentError, "#{ value } is not a directory") unless File.directory?(value)
+      fail(ArgumentError, "#{ value } is not writable")    unless File.writable?(value)
+
+      @temp_dir = Pathname.new(value)
     end
 
-    # Reads the size of the video file and saves it.
-    def load_file_size
-      @file_size = File.size(file_path)
+    # @param value [Fixnum] chunk a video by chunk_size bytes
+    def chunk_size=(value)
+      if !value.is_a?(Fixnum) || value < 0
+        fail ArgumentError, 'chunk_size must be a fixnum > 0'
+      end
+
+      @chunk_size = value
     end
 
     # Do the checking, uploading.
@@ -57,12 +88,14 @@ module VimeoVideos
       check_free_space!
       load_upload_ticket!
       check_upload_size!
-      # split_file_into_chunks!
+      create_chunk_temp_dir!
+      split_file_into_chunks!
       # upload_chunks!
       # verify_chunks!
       # complete_upload!
-      # delete_chunks!
-      # delete_video!
+    ensure
+      delete_chunks!
+      delete_chunk_temp_dir!
     end
 
     # We need to check if there is enough space in the user's quota.
@@ -94,6 +127,57 @@ module VimeoVideos
         message = "Video size: #{ file_size }, ticket size: #{ ticket[:max_file_size] }"
         fail MaxFileSizeExceededError, message
       end
+    end
+
+    # Creates a temporary dir in @temp_dir
+    def create_chunk_temp_dir!
+      timestamp           = Time.now.strftime('%Y%m%d%H%M%S')
+      self.chunk_temp_dir = temp_dir.join(timestamp)
+      Dir.mkdir(chunk_temp_dir) unless chunk_temp_dir.exist?
+    end
+
+    # Split the video file into multiple pieces to speedup upload.
+    def split_file_into_chunks!
+      source_file = File.open(file_path, 'rb')
+
+      (1..number_of_chunks).each do |chunk_number|
+        chunk = create_chunk(chunk_number, source_file)
+        chunks << chunk
+      end
+    end
+
+    # Read a part of video file and save it into a chunk file.
+    #
+    # @param chunk_number [Fixnum] chunk_number
+    # @param source_file  [File]   the whole video file
+    def create_chunk(chunk_number, source_file)
+      chunk_name = "#{ file_name }.#{ chunk_number }"
+      chunk_file = chunk_temp_dir.join(chunk_name)
+
+      File.open(chunk_file, 'wb') do |f|
+        f << source_file.read(chunk_size)
+      end
+
+      chunk_info = {
+        file: chunk_file,
+        size: File.size(chunk_file)
+      }
+
+      chunk_info
+    end
+
+    # Goes through each chunk and deletes it.
+    def delete_chunks!
+      chunks.each do |chunk|
+        next unless chunk[:file].exist?
+        chunk[:file].delete
+      end
+    end
+
+    # Delete the temporary directory where chunks used to be.
+    def delete_chunk_temp_dir!
+      return if !chunk_temp_dir || !chunk_temp_dir.exist?
+      chunk_temp_dir.delete
     end
   end
 end
