@@ -78,9 +78,42 @@ describe VimeoVideos::Upload do
     it 'sets file_size' do
       expect(@upload.file_size).to eq(383_631)
     end
+  end
 
-    it 'upload!' do
+  context 'upload!' do
+    before do
+      client = VimeoVideos::Client.new(
+        client_id:           'client_id',
+        client_secret:       'client_secret',
+        access_token:        'access_token',
+        access_token_secret: 'access_token_secret'
+      )
+
+      @upload = VimeoVideos::Upload.new(EXAMPLE_VIDEO, client)
+    end
+
+    it 'uploads' do
       expect { @upload.upload! }.to_not raise_error
+    end
+  end
+
+  context 'check_free_space!' do
+    before do
+      client = VimeoVideos::Client.new(
+        client_id:           'client_id',
+        client_secret:       'client_secret',
+        access_token:        'access_token',
+        access_token_secret: 'access_token_secret'
+      )
+
+      @upload = VimeoVideos::Upload.new(EXAMPLE_VIDEO, client)
+    end
+
+    it 'not enough free space raises error' do
+      @upload.stub(:file_size) { 22_000_000_000 }
+      expect do
+        @upload.check_free_space!
+      end.to raise_error(VimeoVideos::NoEnoughFreeSpaceError)
     end
   end
 end

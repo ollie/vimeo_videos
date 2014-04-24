@@ -54,8 +54,13 @@ module VimeoVideos
 
     # We need to check if there is enough space in the user's quota.
     def check_free_space!
-      quota = client.request('vimeo.videos.upload.getQuota')
-      quota
+      response   = client.request('vimeo.videos.upload.getQuota')
+      free_space = response[:user][:upload_space][:free].to_i
+
+      if file_size > free_space
+        message = "Video size: #{ file_size }, free space: #{ free_space }"
+        fail NoEnoughFreeSpaceError, message
+      end
     end
   end
 end
