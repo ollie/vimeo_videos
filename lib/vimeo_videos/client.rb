@@ -31,32 +31,51 @@ module VimeoVideos
     # Upload a file to Vimeo.
     #
     # @param file_path [String] path to the video file
-    # @return video_id
+    # @return [String] video_id
     def upload(file_path)
       Upload.new(file_path, self).upload!
     end
 
     # Make an API call.
     #
-    # @param method         [String] eg 'vimeo.videos.upload.getQuota'
+    # @param api_method     [String] eg 'vimeo.videos.upload.getQuota'
     # @param params         [Hash]   HTTP parameters
     # @param request_method [Symbol] :get, :post, :put, :delete
     # @param api_url        [String] root API URL
-    def request(api_method, params = {}, request_method = :get, api_url = API_URL)
+    def request(api_method, params = {}, request_method = :get,
+                api_url = API_URL)
       request  = new_request(api_method, params, request_method, api_url)
       response = get_response(request)
       response
     end
 
-    def new_request(api_method, params, request_method, api_url)
-      params[:method] = api_method
-      params[:format] = 'json'
+    protected
 
+    # Creates a new API request ready to be run.
+    #
+    # @param api_method     [String] eg 'vimeo.videos.upload.getQuota'
+    # @param params         [Hash]   HTTP parameters
+    # @param request_method [Symbol] :get, :post, :put, :delete
+    # @param api_url        [String] root API URL
+    # @return [Typhoeus::Request]
+    def new_request(api_method, params, request_method, api_url)
+      params.merge!(method: api_method, format: 'json')
       header = new_header(params, request_method, api_url)
 
+      typhoeus_request(header, params, request_method, api_url)
+    end
+
+    # Create a Typhoeus::Request.
+    #
+    # @param header         [SimpleOAuth::Header] OAuth headers
+    # @param params         [Hash]   HTTP parameters
+    # @param request_method [Symbol] :get, :post, :put, :delete
+    # @param api_url        [String] root API URL
+    # @return [Typhoeus::Request]
+    def typhoeus_request(header, params, request_method, api_url)
       Typhoeus::Request.new(
         header.url,
-        method: header.method.downcase.to_sym,
+        method: request_method,
         params: header.params,
         headers: {
           'User-Agent'    => USER_AGENT,
@@ -65,32 +84,47 @@ module VimeoVideos
       )
     end
 
+    # Constructs a new SimpleOAuth::Header instance
+    # ready to be used for Typhoeus request.
+    #
+    # @param params         [Hash]   HTTP parameters
+    # @param request_method [Symbol] :get, :post, :put, :delete
+    # @param api_url        [String] root API URL
+    # @return [SimpleOAuth::Header]
     def new_header(params, request_method, api_url)
-      header = SimpleOAuth::Header.new(
+      SimpleOAuth::Header.new(
         request_method,
         api_url,
         params,
         oauth_options
       )
-      header
     end
 
+    # OAuth options for SimpleOauth::Header.
+    #
+    # @return [Hash] A hash ready to be passed to SimpleOauth::Header
     def oauth_options
-      options = {
+      {
         consumer_key:    client_id,
         consumer_secret: client_secret,
         token:           access_token,
         token_secret:    access_token_secret
       }
-      options
     end
 
+    # Takes a Typhoeus request, runs it and runs the response
+    # through Oj to get a Hash.
+    #
+    # @param request [Typhoeus::Request] request to run
+    # @return [Hash] parsed response
     def get_response(request)
       response    = request.run
       raw_body    = response.body
       parsed_body = Oj.load(raw_body, OJ_OPTIONS)
 
-      fail ApiError, "#{ parsed_body.inspect }" if parsed_body[:stat] != 'ok'
+      if parsed_body[:stat] != 'ok'
+        fail RequestError, "#{ parsed_body.inspect }"
+      end
 
       parsed_body
     end

@@ -1,4 +1,10 @@
 module VimeoVideos
-  class ApiError    < StandardError; end
+  # General API exception.
+  class ApiError < StandardError; end
+
+  # Raised when +stat+ in response is not +ok+.
+  class RequestError < ApiError; end
+
+  # General upload error.
   class UploadError < ApiError; end
 end

@@ -91,6 +91,40 @@ describe VimeoVideos::Client do
     end
   end
 
+  context 'Successful API request' do
+    before do
+      client = VimeoVideos::Client.new(
+        client_id:           'client_id',
+        client_secret:       'client_secret',
+        access_token:        'access_token',
+        access_token_secret: 'access_token_secret'
+      )
+
+      @response = client.request('vimeo.videos.upload.getQuota')
+    end
+
+    it 'returns quota hash' do
+      expect(@response).to eq(SUCCESSFUL_QUOTA_RESPONSE)
+    end
+  end
+
+  context 'Invalid signature' do
+    before do
+      @client = VimeoVideos::Client.new(
+        client_id:           'client_id',
+        client_secret:       'client_secret',
+        access_token:        'signature_error',
+        access_token_secret: 'access_token_secret'
+      )
+    end
+
+    it 'raises an error' do
+      expect do
+        @client.request('vimeo.videos.upload.getQuota')
+      end.to raise_error(VimeoVideos::RequestError)
+    end
+  end
+
   context 'Upload' do
     before do
       @client = VimeoVideos::Client.new(
