@@ -3,6 +3,11 @@ module VimeoVideos
   class Upload
     attr_reader :file_path, :client, :file_name, :file_size
 
+    # [Hash] :id
+    #        :endpoint_secure
+    #        :max_file_size
+    attr_accessor :ticket
+
     # @param file_path [String] video file path
     # @param client    [Client] the client is used to call the API
     def initialize(file_path, client)
@@ -42,8 +47,8 @@ module VimeoVideos
     # Do the checking, uploading.
     def upload!
       check_free_space!
-      # get_upload_ticket!
-      # check_upload_size!
+      load_upload_ticket!
+      check_upload_size!
       # split_file_into_chunks!
       # upload_chunks!
       # verify_chunks!
@@ -60,6 +65,26 @@ module VimeoVideos
       if file_size > free_space
         message = "Video size: #{ file_size }, free space: #{ free_space }"
         fail NoEnoughFreeSpaceError, message
+      end
+    end
+
+    # Requests a new upload ticket and stores it in @ticket.
+    def load_upload_ticket!
+      response    = client.request('vimeo.videos.upload.getTicket')
+      ticket      = response[:ticket]
+
+      self.ticket = {
+        id:              ticket[:id],
+        endpoint_secure: ticket[:endpoint_secure],
+        max_file_size:   ticket[:max_file_size].to_i
+      }
+    end
+
+    # If a file is larger than an upload ticket allows, we are done.
+    def check_upload_size!
+      if file_size > ticket[:max_file_size]
+        message = "Video size: #{ file_size }, ticket size: #{ ticket[:max_file_size] }"
+        fail MaxFileSizeExceededError, message
       end
     end
   end

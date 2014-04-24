@@ -1,3 +1,4 @@
+# vimeo.videos.upload.getQuota response.
 SUCCESSFUL_QUOTA_RESPONSE = {
   generated_in: '0.0124',
   stat:         'ok',
@@ -16,6 +17,17 @@ SUCCESSFUL_QUOTA_RESPONSE = {
   }
 }
 
+WebMock.stub_request(:get, 'https://vimeo.com/api/rest/v2?format=json&method=vimeo.videos.upload.getQuota')
+  .with(
+    headers: {
+      'Authorization' => /oauth_token="access_token"/
+    }
+  ).to_return(
+    status: 200,
+    body: Oj.dump(SUCCESSFUL_QUOTA_RESPONSE, VimeoVideos::Client::OJ_OPTIONS)
+  )
+
+# Invalid signature rsponse.
 SIGNATURE_INVALID_RESPONSE = {
   generated_in: '0.0091',
   stat:         'fail',
@@ -26,26 +38,35 @@ SIGNATURE_INVALID_RESPONSE = {
   }
 }
 
-# Successful getQuota method call.
-WebMock.stub_request(:get, 'https://vimeo.com/api/rest/v2?format=json&method=vimeo.videos.upload.getQuota').
-  with(
+WebMock.stub_request(:get, 'https://vimeo.com/api/rest/v2?format=json&method=vimeo.videos.upload.getQuota')
+  .with(
     headers: {
-      'Authorization' => /OAuth oauth_consumer_key="client_id", oauth_nonce=".*?", oauth_signature=".*?", oauth_signature_method="HMAC-SHA1", oauth_timestamp=".*?", oauth_token="access_token", oauth_version="1.0"/,
-      'User-Agent'    => 'VimeoVideos (https://github.com/ollie/vimeo_videos)'
-    }
-  ).to_return(
-    status: 200,
-    body: Oj.dump(SUCCESSFUL_QUOTA_RESPONSE, VimeoVideos::Client::OJ_OPTIONS)
-  )
-
-# Invalid signature.
-WebMock.stub_request(:get, 'https://vimeo.com/api/rest/v2?format=json&method=vimeo.videos.upload.getQuota').
-  with(
-    headers: {
-      'Authorization' => /OAuth oauth_consumer_key="client_id", oauth_nonce=".*?", oauth_signature=".*?", oauth_signature_method="HMAC-SHA1", oauth_timestamp=".*?", oauth_token="signature_error", oauth_version="1.0"/,
-      'User-Agent'    => 'VimeoVideos (https://github.com/ollie/vimeo_videos)'
+      'Authorization' => /oauth_token="signature_error"/
     }
   ).to_return(
     status: 200,
     body: Oj.dump(SIGNATURE_INVALID_RESPONSE, VimeoVideos::Client::OJ_OPTIONS)
+  )
+
+# vimeo.videos.upload.getTicket response.
+UPLOAD_TICKET_RESPONSE = {
+  generated_in: '0.0258',
+  stat:         'ok',
+  ticket:       {
+    endpoint:        'http://1511493072.cloud.vimeo.com/upload_multi?ticket_id=efb8545e8776801df481f4cbc234ecdf',
+    endpoint_secure: 'https://1511493072.cloud.vimeo.com/upload_multi?ticket_id=efb8545e8776801df481f4cbc234ecdf',
+    host:            '1511493072.cloud.vimeo.com',
+    id:              'efb8545e8776801df481f4cbc234ecdf',
+    max_file_size:   '21474836480'
+  }
+}
+
+WebMock.stub_request(:get, 'https://vimeo.com/api/rest/v2?format=json&method=vimeo.videos.upload.getTicket')
+  .with(
+    headers: {
+      'Authorization' => /oauth_token="access_token"/
+    }
+  ).to_return(
+    status: 200,
+    body: Oj.dump(UPLOAD_TICKET_RESPONSE, VimeoVideos::Client::OJ_OPTIONS)
   )

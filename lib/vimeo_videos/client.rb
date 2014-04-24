@@ -42,8 +42,7 @@ module VimeoVideos
     # @param params         [Hash]   HTTP parameters
     # @param request_method [Symbol] :get, :post, :put, :delete
     # @param api_url        [String] root API URL
-    def request(api_method, params = {}, request_method = :get,
-                api_url = API_URL)
+    def request(api_method, params = {}, request_method = :get, api_url = API_URL)
       request  = new_request(api_method, params, request_method, api_url)
       response = get_response(request)
       response
