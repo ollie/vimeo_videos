@@ -122,7 +122,7 @@ module VimeoVideos
       parsed_body = Oj.load(raw_body, OJ_OPTIONS)
 
       if parsed_body[:stat] != 'ok'
-        fail RequestError, "#{ parsed_body.inspect }"
+        fail ClientError, "#{ parsed_body.inspect }"
       end
 
       parsed_body

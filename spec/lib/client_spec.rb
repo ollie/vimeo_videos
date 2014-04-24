@@ -121,7 +121,7 @@ describe VimeoVideos::Client do
     it 'raises an error' do
       expect do
         @client.request('vimeo.videos.upload.getQuota')
-      end.to raise_error(VimeoVideos::RequestError)
+      end.to raise_error(VimeoVideos::ClientError)
     end
   end
 

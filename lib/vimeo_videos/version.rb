@@ -1,5 +1,4 @@
-# Version is extracted into a separate file so it is
-# easy to change and commit later.
+# Upload videos to Vimeo through V2 API.
 module VimeoVideos
   # Version :)
   VERSION = '0.0.1'

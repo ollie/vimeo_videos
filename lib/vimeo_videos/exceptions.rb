@@ -1,12 +1,19 @@
 module VimeoVideos
+  # StandardError
+  #   BaseError
+  #     ClientError
+  #     UploadError
+  #       NoEnoughFreeSpaceError
+  #       MaxFileSizeExceededError
+
   # General API exception.
-  class ApiError < StandardError; end
+  class BaseError < StandardError; end
 
   # Raised when +stat+ in response is not +ok+.
-  class RequestError < ApiError; end
+  class ClientError < BaseError; end
 
   # General upload error.
-  class UploadError < ApiError; end
+  class UploadError < BaseError; end
 
   # Raised when a video cannot fit into user's quota.
   class NoEnoughFreeSpaceError < UploadError; end
