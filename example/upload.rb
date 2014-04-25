@@ -11,13 +11,15 @@ client = VimeoVideos::Client.new(
   client_id:           config['client_id'],
   client_secret:       config['client_secret'],
   access_token:        config['access_token'],
-  access_token_secret: config['access_token_secret'],
+  access_token_secret: config['access_token_secret']
 )
 
 begin
-  # video_id = client.upload('example-video.mp4') # Default chunk_temp_dir and chunk_size
-  video_id = client.upload('example-video.mp4', temp_dir: '../tmp', chunk_size: 100_000)
+  # video_id = client.upload('example-video.mp4')
+  video_id = client.upload('example-video.mp4', temp_dir: '../tmp')
+  # video_id = client.upload('example-video.mp4', temp_dir: '../tmp', chunk_size: 100_000)
   puts video_id
 rescue VimeoVideos::BaseError => e
   puts "Oh noes, something broke: #{ e }"
+  puts e.backtrace
 end

@@ -49,6 +49,62 @@ module VimeoVideos
       response
     end
 
+    # Run through the chunks and upload them.
+    #
+    # @param ticket [Hash]        Upload ticket :id, :endpoint_secure, :max_file_size
+    # @param chunks [Array<Hash>] Hash is :number, :file, :size
+    def upload_chunks(ticket, chunks)
+      hydra = Typhoeus::Hydra.new
+
+      chunks.each do |chunk|
+        request = chunk_upload_request(ticket, chunk)
+        hydra.queue(request)
+      end
+
+      hydra.run
+    end
+
+    # Send a file chunk to Vimeo.
+    #
+    # @param ticket [Hash] Upload ticket :id, :endpoint_secure, :max_file_size
+    # @param chunk  [Hash] :number, :file, :size
+    def chunk_upload_request(ticket, chunk)
+      params = {
+        ticket_id: ticket[:id],
+        chunk_id:  chunk[:number].to_s
+      }
+
+      header = SimpleOAuth::Header.new(
+        :post,
+        ticket[:endpoint_secure],
+        params,
+        oauth_options
+      )
+
+      body = header.params.merge(
+        file_data: File.open(chunk[:file], 'rb')
+      )
+
+      request = Typhoeus::Request.new(
+        header.url,
+        method: :post,
+        params: header.params,
+        body:   body,
+        headers: {
+          'User-Agent'    => USER_AGENT,
+          'Authorization' => header.to_s
+        }
+      )
+
+      request.on_complete do |response|
+        unless response.success?
+          fail ChunkUploadFailed, response.body.strip
+        end
+      end
+
+      request
+    end
+
     protected
 
     # Creates a new API request ready to be run.

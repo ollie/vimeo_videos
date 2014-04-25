@@ -257,4 +257,32 @@ describe VimeoVideos::Upload do
       expect { @upload.delete_chunk_temp_dir! }.to_not raise_error
     end
   end
+
+  context 'split_file_into_chunks!' do
+    before do
+      client = VimeoVideos::Client.new(
+        client_id:           'client_id',
+        client_secret:       'client_secret',
+        access_token:        'access_token',
+        access_token_secret: 'access_token_secret'
+      )
+
+      @upload = VimeoVideos::Upload.new(EXAMPLE_VIDEO, client, chunk_size: 100_000)
+      @upload.create_chunk_temp_dir!
+    end
+
+    after do
+      @upload.delete_chunk_temp_dir!
+    end
+
+    it 'creates chunks' do
+      files_count = Dir[ @upload.chunk_temp_dir.join('*') ].size
+      expect(files_count).to eq(0)
+
+      @upload.split_file_into_chunks!
+
+      files_count = Dir[ @upload.chunk_temp_dir.join('*') ].size
+      expect(files_count).to eq(4)
+    end
+  end
 end

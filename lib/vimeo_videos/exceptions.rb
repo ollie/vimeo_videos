@@ -20,4 +20,10 @@ module VimeoVideos
 
   # Raised when a file cannot fit into an upload ticket max_file_size.
   class MaxFileSizeExceededError < UploadError; end
+
+  # Raised when a file cannot be uploaded for some reason.
+  class ChunkUploadFailed < UploadError; end
+
+  # Chunk size differs.
+  class ChunkSizeError < UploadError; end
 end

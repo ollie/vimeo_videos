@@ -1,11 +1,19 @@
+# Better readibility
 SpaceInsideParens:
   Enabled: false
 
-TrailingComma:
+# Better readibility
+SpaceInsideBrackets:
   Enabled: false
 
+# 80 is way too low
 LineLength:
   Max: 120
 
+# 10 is too low
+MethodLength:
+  Max: 15
+
+# TODO
 ClassLength:
   Max: 200

@@ -1,6 +1,9 @@
 module VimeoVideos
   # Does the uploading and upload-talking.
   class Upload
+    # Default file size per chunk
+    DEFAULT_CHUNK_SIZE = 2 * 1024 * 1024 # 2 MB
+
     # @return [Pathname] path to the video file
     attr_reader :file_path
 
@@ -39,8 +42,8 @@ module VimeoVideos
       self.file_name        = File.basename(file_path)
       self.file_size        = File.size(file_path)
       self.client           = client
-      self.temp_dir         = options[:temp_dir] || 'tmp'
-      self.chunk_size       = options[:chunk_size]     || 2_097_152 # 2 MB
+      self.temp_dir         = options[:temp_dir]   || 'tmp'
+      self.chunk_size       = options[:chunk_size] || DEFAULT_CHUNK_SIZE
       self.chunks           = []
       self.number_of_chunks = (file_size.to_f / chunk_size).ceil
     end
@@ -90,11 +93,10 @@ module VimeoVideos
       check_upload_size!
       create_chunk_temp_dir!
       split_file_into_chunks!
-      # upload_chunks!
-      # verify_chunks!
-      # complete_upload!
+      upload_chunks!
+      verify_chunks!
+      complete_upload!
     ensure
-      delete_chunks!
       delete_chunk_temp_dir!
     end
 
@@ -131,8 +133,9 @@ module VimeoVideos
 
     # Creates a temporary dir in @temp_dir
     def create_chunk_temp_dir!
-      timestamp           = Time.now.strftime('%Y%m%d%H%M%S')
-      self.chunk_temp_dir = temp_dir.join(timestamp)
+      timestamp           = Time.now.strftime('%Y%m%d%H%M%S%L')
+      chunk_temp_name     = "#{ file_name }_#{ timestamp }"
+      self.chunk_temp_dir = temp_dir.join(chunk_temp_name)
       Dir.mkdir(chunk_temp_dir) unless chunk_temp_dir.exist?
     end
 
@@ -140,7 +143,7 @@ module VimeoVideos
     def split_file_into_chunks!
       source_file = File.open(file_path, 'rb')
 
-      (1..number_of_chunks).each do |chunk_number|
+      number_of_chunks.times.each do |chunk_number|
         chunk = create_chunk(chunk_number, source_file)
         chunks << chunk
       end
@@ -159,11 +162,57 @@ module VimeoVideos
       end
 
       chunk_info = {
-        file: chunk_file,
-        size: File.size(chunk_file)
+        number: chunk_number,
+        file:   chunk_file,
+        size:   File.size(chunk_file)
       }
 
       chunk_info
+    end
+
+    # Run through the chunks and upload them.
+    def upload_chunks!
+      client.upload_chunks(ticket, chunks)
+    end
+
+    def verify_chunks!
+      params = {
+        ticket_id: ticket[:id]
+      }
+
+      response        = client.request('vimeo.videos.upload.verifyChunks', params)
+      response_chunks = response[:ticket][:chunks][:chunk]
+
+      if response_chunks.is_a?(Hash)
+        response_chunks = [ response_chunks ]
+      end
+
+      response_chunks.each do |their_chunk|
+        our_chunk = chunks.find { |ch| ch[:number] == their_chunk[:id].to_i }
+
+        if our_chunk[:size] != their_chunk[:size].to_i
+          message = "Chunk #{ our_chunk[:id] }, our size: #{ our_chunk[:size] }, their size: #{ their_chunk[:size] }"
+          fail ChunkSizeError, message
+        end
+      end
+    end
+
+    def complete_upload!
+      params = {
+        filename:  file_name,
+        ticket_id: ticket[:id]
+      }
+
+      response = client.request('vimeo.videos.upload.complete', params)
+      response
+    end
+
+    # Delete the temporary directory where chunks used to be.
+    def delete_chunk_temp_dir!
+      delete_chunks!
+
+      return if !chunk_temp_dir || !chunk_temp_dir.exist?
+      chunk_temp_dir.delete
     end
 
     # Goes through each chunk and deletes it.
@@ -172,12 +221,6 @@ module VimeoVideos
         next unless chunk[:file].exist?
         chunk[:file].delete
       end
-    end
-
-    # Delete the temporary directory where chunks used to be.
-    def delete_chunk_temp_dir!
-      return if !chunk_temp_dir || !chunk_temp_dir.exist?
-      chunk_temp_dir.delete
     end
   end
 end
