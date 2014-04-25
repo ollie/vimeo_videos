@@ -5,6 +5,8 @@ module VimeoVideos
   #     UploadError
   #       NoEnoughFreeSpaceError
   #       MaxFileSizeExceededError
+  #       ChunkUploadFailed
+  #       ChunkSizeError
 
   # General API exception.
   class BaseError < StandardError; end
