@@ -1,92 +1,32 @@
+require 'vimeo_videos/upload/attributes'
+
 module VimeoVideos
-  # Does the uploading and upload-talking.
+  # Handles checking space, splitting video into smaller chunks,
+  # uploading them, veryfing them and a cleanup.
   class Upload
-    # Default file size per chunk
-    DEFAULT_CHUNK_SIZE = 2 * 1024 * 1024 # 2 MB
+    # Video will be chunked in this directory.
+    DEFAULT_TMP_DIR_PATH = 'tmp'
 
-    # @return [Pathname] path to the video file
-    attr_reader :file_path
-
-    # @return [Client] Client instance
-    attr_reader :client
-
-    # @return [String] name of the video file
-    attr_accessor :file_name
-
-    # @return [Fixnum] size of the video file
-    attr_accessor :file_size
-
-    # @return [Pathname] path to dir where chunks dirs will be stored, defaults to 'tmp'
-    attr_reader :temp_dir
-
-    # @return [Pathname] path to dir where video chunks will be stored, defaults to 'tmp'
-    attr_accessor :chunk_temp_dir
-
-    # @return [Fixnum] chunk a video by chunk_size bytes, defaults to 2 MB
-    attr_reader :chunk_size
-
-    # @return [Array] array of chunks (video split into pieces)
-    attr_accessor :chunks
-
-    # @return [Fixnum] to how many pieces split the video into
-    attr_accessor :number_of_chunks
-
-    # @return [Hash] :id, :endpoint_secure, :max_file_size
-    attr_accessor :ticket
+    # Default file size per chunk, 2 MB.
+    DEFAULT_CHUNK_SIZE = 2 * 1024 * 1024
 
     # @param file_path [String] video file path
     # @param client    [Client] the client is used to call the API
-    # @param options   [Hash]   :temp_dir, :chunk_size
+    # @param options   [Hash]
+    #   :temp_dir   - video will be chunked in this directory, defaults to 'tmp'
+    #   :chunk_size - defaults to 2 MB
     def initialize(file_path, client, options = {})
       self.file_path        = file_path
       self.file_name        = File.basename(file_path)
       self.file_size        = File.size(file_path)
       self.client           = client
-      self.temp_dir         = options[:temp_dir]   || 'tmp'
+      self.temp_dir         = options[:temp_dir]   || DEFAULT_TMP_DIR_PATH
       self.chunk_size       = options[:chunk_size] || DEFAULT_CHUNK_SIZE
       self.chunks           = []
       self.number_of_chunks = (file_size.to_f / chunk_size).ceil
     end
 
-    # @param value [String] video file path
-    def file_path=(value)
-      if value.nil? || value.empty?
-        fail(ArgumentError, 'file_path cannot be empty')
-      end
-
-      fail(ArgumentError, 'File seems to be missing') unless File.file?(value)
-
-      @file_path = Pathname.new(value)
-    end
-
-    # @param value [Client] the client is used to call the API
-    def client=(value)
-      fail(ArgumentError, 'client cannot be empty') unless value
-      @client = value
-    end
-
-    # @param value [String] path to dir where chunks dirs will be stored
-    def temp_dir=(value)
-      if value.nil? || value.empty?
-        fail(ArgumentError, "Invalid temp_dir: #{ value }")
-      end
-
-      fail(ArgumentError, "#{ value } is not a directory") unless File.directory?(value)
-      fail(ArgumentError, "#{ value } is not writable")    unless File.writable?(value)
-
-      @temp_dir = Pathname.new(value)
-    end
-
-    # @param value [Fixnum] chunk a video by chunk_size bytes
-    def chunk_size=(value)
-      if !value.is_a?(Fixnum) || value < 0
-        fail ArgumentError, 'chunk_size must be a fixnum > 0'
-      end
-
-      @chunk_size = value
-    end
-
-    # Do the checking, uploading.
+    # Do the checking, splitting, uploading and cleanup.
     def upload!
       check_free_space!
       load_upload_ticket!
@@ -172,9 +112,11 @@ module VimeoVideos
 
     # Run through the chunks and upload them.
     def upload_chunks!
-      client.upload_chunks(ticket, chunks)
+      client.upload_request(ticket, chunks)
     end
 
+    # Get a verify ticket, run through the chunks and compare
+    # the file sizes. If they match, good, if not, it's broke.
     def verify_chunks!
       params = {
         ticket_id: ticket[:id]
@@ -182,10 +124,7 @@ module VimeoVideos
 
       response        = client.request('vimeo.videos.upload.verifyChunks', params)
       response_chunks = response[:ticket][:chunks][:chunk]
-
-      if response_chunks.is_a?(Hash)
-        response_chunks = [ response_chunks ]
-      end
+      response_chunks = [ response_chunks ] if response_chunks.is_a?(Hash)
 
       response_chunks.each do |their_chunk|
         our_chunk = chunks.find { |ch| ch[:number] == their_chunk[:id].to_i }
@@ -197,6 +136,10 @@ module VimeoVideos
       end
     end
 
+    # Mark the upload as complete and start processing the video
+    # on Vimeo side.
+    #
+    # @return [String] video_id
     def complete_upload!
       params = {
         filename:  file_name,
@@ -204,7 +147,8 @@ module VimeoVideos
       }
 
       response = client.request('vimeo.videos.upload.complete', params)
-      response
+      video_id = response[:ticket][:video_id]
+      video_id
     end
 
     # Delete the temporary directory where chunks used to be.
