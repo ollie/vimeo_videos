@@ -6,6 +6,7 @@ module VimeoVideos
   #       NoEnoughFreeSpaceError
   #       MaxFileSizeExceededError
   #       ChunkUploadFailed
+  #       ChunkCountError
   #       ChunkSizeError
 
   # General API exception.
@@ -25,6 +26,9 @@ module VimeoVideos
 
   # Raised when a file cannot be uploaded for some reason.
   class ChunkUploadFailed < UploadError; end
+
+  # Chunk count differs.
+  class ChunkCountError < UploadError; end
 
   # Chunk size differs.
   class ChunkSizeError < UploadError; end

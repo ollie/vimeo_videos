@@ -72,10 +72,12 @@ WebMock.stub_request(:get, 'https://vimeo.com/api/rest/v2?format=json&method=vim
   )
 
 # Upload video
-WebMock.stub_request(:post, 'https://1511493072.cloud.vimeo.com/upload_multi' \
-                            '?chunk_id=0&ticket_id=efb8545e8776801df481f4cbc234ecdf')
+WebMock.stub_request(
+    :post,
+    %r{https://1511493072.cloud.vimeo.com/upload_multi\?chunk_id=\d+&ticket_id=efb8545e8776801df481f4cbc234ecdf}
+  )
   .with(
-    body: /chunk_id=0&file_data=.+&ticket_id=efb8545e8776801df481f4cbc234ecdf/,
+    body: /chunk_id=\d+&file_data=.+&ticket_id=efb8545e8776801df481f4cbc234ecdf/,
     headers: {
       'Authorization' => /oauth_token="access_token"/
     }

@@ -126,13 +126,30 @@ module VimeoVideos
       response_chunks = response[:ticket][:chunks][:chunk]
       response_chunks = [ response_chunks ] if response_chunks.is_a?(Hash)
 
+      verify_chunks_count(chunks, response_chunks)
+
       response_chunks.each do |their_chunk|
         our_chunk = chunks.find { |ch| ch[:number] == their_chunk[:id].to_i }
+        verify_chunk(our_chunk, their_chunk)
+      end
+    end
 
-        if our_chunk[:size] != their_chunk[:size].to_i
-          message = "Chunk #{ our_chunk[:id] }, our size: #{ our_chunk[:size] }, their size: #{ their_chunk[:size] }"
-          fail ChunkSizeError, message
-        end
+    # Make sure we get the same number of chunks as we have.
+    def verify_chunks_count(our_chunks, their_chunks)
+      our_size   = our_chunks.size
+      their_size = their_chunks.size
+
+      if our_size != their_size
+        message = "Chunk count doesn't match: our size: #{ our_size }, their size: #{ their_size }"
+        fail ChunkCountError, message
+      end
+    end
+
+    # Make sure each chunk has the same size as ours.
+    def verify_chunk(our_chunk, their_chunk)
+      if our_chunk[:size] != their_chunk[:size].to_i
+        message = "Chunk #{ our_chunk[:id] }, our size: #{ our_chunk[:size] }, their size: #{ their_chunk[:size] }"
+        fail ChunkSizeError, message
       end
     end
 
