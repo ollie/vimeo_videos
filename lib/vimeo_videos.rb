@@ -2,7 +2,7 @@ require 'typhoeus'
 require 'oj'
 require 'simple_oauth'
 
-require 'pry' # TODO: remove me once done
+# require 'pry' # TODO: remove me once done
 
 require 'vimeo_videos/version'
 require 'vimeo_videos/exceptions'
