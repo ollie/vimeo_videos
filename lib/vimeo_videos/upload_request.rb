@@ -59,7 +59,7 @@ module VimeoVideos
       request = new_typhoeus_request(chunk, header)
 
       request.on_complete do |response|
-        response.success? || fail(ChunkUploadFailed, response.body.strip)
+        response.success? || fail(ChunkUploadFailed, "Code: #{ response.code }, body: #{ response.body.strip }")
       end
 
       request
